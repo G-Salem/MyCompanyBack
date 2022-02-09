@@ -1,6 +1,6 @@
 const { Client } = require('pg');
 
-
+// connexion avec la BD seveur
 // const client = new Client({
 //     host: "localhost",
 //     user: "postgres",
@@ -8,6 +8,7 @@ const { Client } = require('pg');
 //     password: "Logime$2022",
 //     database: "Logimes"
 // })
+// connexion avec la BD seveur
 
 const client = new Client({
     host: "localhost",

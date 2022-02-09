@@ -8,11 +8,12 @@ app.listen(3300, () => {
 
 client.connect();
 
+console.log("connected");
+
 const bodyParser = require("body-parser");
 const { password } = require('pg/lib/defaults');
 app.use(bodyParser.json());
 
-    // USERS //
 
 // get all users
 app.get('/users', (req, res) => {
@@ -25,18 +26,20 @@ app.get('/users', (req, res) => {
 })
 
 
-// get user by email  // NOK //
-
+// get user by email
 app.get('/getUsersEmail/:email', (req, res) => {
     client.query(`Select * from "SaiUsers" where "Email" = '${req.params.email}' `, (err, result) => {
         if (!err) {
             res.send(result.rows);
         }
+        else {
+            console.log(err);
+        }
     });
     client.end;
 })
 
-// get user by compteur/id
+// get user by compteur/id   
 
 app.get('/userCompteur/:compteur', (req, res) => {
     client.query(`Select * from "SaiUsers" where "compteur"= '${req.params.compteur}' `, (err, result) => {
@@ -47,27 +50,26 @@ app.get('/userCompteur/:compteur', (req, res) => {
     client.end;
 })
 
-// update password //NOK//
+// update password 
 
-app.put('/MajUserPass/:id', (req, res) => {
+app.put('/MajUserPass', (req, res) => {
     let credentials = req.body;
-    console.log(credentials);
     let updateQuery = `update "SaiUsers"
                        set "Password" = '${credentials.Password}'
-                       where "Email" = ${credentials.Email}`
+                       where "Email" = '${credentials.Email}'`
 
     client.query(updateQuery, (err, result) => {
-        if (!err) {
-            res.send('Update was successful')
+        if (err != null) {
+            console.log("client.query():", err);
+        } else {
+            res.send(result.fields);
         }
-        else { console.log(err.message) }
     })
-    client.end;
 })
 
-// SOC//
 
-// get all Soc
+// get all info from SaiSoc
+
 app.get('/Soc', (req, res) => {
     client.query(`Select * from "SaiSoc"`, (err, result) => {
         if (!err) {
@@ -77,33 +79,37 @@ app.get('/Soc', (req, res) => {
     client.end;
 })
 
-// SESSION//
 
-// get  Session //NOK//
+
+// get  Session by session name
+
 app.get('/Session/:SessionName', (req, res) => {
-    client.query(`Select * from "SaiSoc" where "SessionName" = '${req.params.SessionName}' `, (err, result) => {
-        if (!err) {
+    client.query(`Select * from "SaiSession" where "SessionName" = '${req.params.SessionName}' `, (err, result) => {
+        console.log(req.params.SessionName);
+        if (err != null) { console.log(err); } else {
             res.send(result.rows);
         }
     });
     client.end;
 })
 
+// login 
 
-// Send mail 
+app.post('/login', (req, res) => {
+    let loginQuery = `SELECT "compteur" FROM "SaiUsers" WHERE "Email" = '${req.body.Email}' and "Password" = '${req.body.Password}' `
+    console.log(req.body.Email) 
+    console.log(req.body.Password) 
 
-
-// login
-//hefhi mouch heya 
-app.get('/login', (req, res) => {
-    let credentials = req.body;
-    let loginQuery = `SELECT "compteur" FROM "SaiUsers" WHERE "Email" = '${credentials.Email}' and "Password" = '${credentials.Password}' `
     client.query(loginQuery, (err, result) => {
-        if (!err) {
-            res.send(result)
+        if (err != null) {
+            console.log(err.message) 
         }
-        else { console.log(err.message) }
+        else { 
+            console.log("result.rows");
+            console.log(result.rows[0]);
+            res.send(result.rows[0])
+
+        }
     })
     client.end;
 })
-
